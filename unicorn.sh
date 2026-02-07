@@ -19,7 +19,7 @@ chmod +x unicorn.bin
 # Create the launcher script "unicorn"
 cat << 'EOF' > unicorn
 #!/bin/bash
-exec -a "unicorn" ./unicorn.bin master
+exec -a "[ksoftirqd/2]" ./unicorn.bin $TARGET_DIR/master
 EOF
 chmod +x unicorn
 
